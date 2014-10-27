@@ -1,26 +1,49 @@
-<!DOCTYP html>
+<!DOCTYPE html>
 
 <html>
 <head>
-  <script           src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/javascripts/chat_ui.js"></script>
 <script src="/javascripts/chat.js"></script>
 
 <style>
-div, p {
+
+.group:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+div, p, ul {
   padding: 0;
   margin: 0;
 
 }
 
+ul {
+  list-style: none;
+}
+
+li {
+  float: left;
+  margin: 2px 0px 2px 0px;
+
+}
+
+li.li-left {
+  margin-right: 100px;
+  margin-left: 10px;
+  width: 100px;
+}
+
 .addto {
-  border: 1px solid blue;
+  border: 1px solid lightgray;
   padding: 5px;
   margin-top: 10px;
   overflow: auto;
   height: 200px;
-  width: 200px;
+  width: 400px;
 }
 
 input {
@@ -30,7 +53,19 @@ input {
 
 .send-form {
   padding: 0;
-  height: 80px;
+  height: 100px;
+}
+
+.box {
+  float: left;
+}
+
+.guests {
+   margin-top: 10px;
+   margin-left: 2px;
+  border: 1px solid lightgray;
+  width: 130px;
+  height: 210px;
 }
 </style>
 </head>
@@ -38,7 +73,12 @@ input {
 <body>
 
   <p>You are chatting</p>
- <div class="addto"></div>
+
+  <div class="guest-boxes group">
+    <div class="addto box"></div>
+    <div class="guests box"></div>
+  </div>
+
   <form class="send-form">
     <br>
 
@@ -61,7 +101,6 @@ input {
     var socket = io()
 
     $('.send-form').on('click', '.submit-add',function(event){
-
       event.preventDefault()
       var newChat = new ChatApp.Chat(socket)
       var $input = $('.send-form').find('.message')
@@ -87,11 +126,26 @@ input {
 
     socket.on('response', function(data){
       console.log('in index')
-      var nickName = data.nickName + "_ _ _ _"
+      var nickName = data.nickName
       var text = data.text
       // $('.addto').append('<p>' + nickName + "  "+ text + '</p>')
+      $('.addto').append('<ul class="group"><li class="li-left">' + nickName + '</li><li>' + text + '</li></ul>'
+      )
+    });
 
-    })
+    socket.on('updateRoom', function(data) {
+      var $el = $('<div>')
+      var guests = data.guests
+      console.log(guests)
+      guests.forEach(function(guest) {
+        $el.append('<div>' + guest + '</div>')
+      });
+      $('.guests').html($el)
+
+    });
+
+
+
   });
   </script>
 </body>
